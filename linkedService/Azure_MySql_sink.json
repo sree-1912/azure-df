@@ -1,0 +1,11 @@
+{
+	"name": "Azure_MySql_sink",
+	"properties": {
+		"type": "AzureMySql",
+		"connectVia": {
+			"referenceName": "df1runtime",
+			"type": "IntegrationRuntimeReference"
+		},
+		"annotations": []
+	}
+}
