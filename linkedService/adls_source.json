@@ -1,0 +1,11 @@
+{
+	"name": "adls_source",
+	"properties": {
+		"type": "AzureBlobFS",
+		"connectVia": {
+			"referenceName": "df1runtime",
+			"type": "IntegrationRuntimeReference"
+		},
+		"annotations": []
+	}
+}
