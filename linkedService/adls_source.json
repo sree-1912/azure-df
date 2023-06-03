@@ -1,11 +1,14 @@
 {
 	"name": "adls_source",
 	"properties": {
+		"annotations": [],
 		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adlssource1.dfs.core.windows.net/"
+		},
 		"connectVia": {
 			"referenceName": "df1runtime",
 			"type": "IntegrationRuntimeReference"
-		},
-		"annotations": []
+		}
 	}
 }
