@@ -1,0 +1,7 @@
+{
+	"name": "Azuresqldb_sink",
+	"properties": {
+		"type": "AzureMySql",
+		"annotations": []
+	}
+}
