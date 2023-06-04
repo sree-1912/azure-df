@@ -1,0 +1,83 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "opADLS",
+						"type": "DatasetReference"
+					},
+					"name": "moviesADLS"
+				}
+			],
+			"sinks": [
+				{
+					"name": "SinktoDB"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectandRename",
+					"description": "Renaming col 'Rotton Tomato' to 'Rotten Tomato'"
+				},
+				{
+					"name": "FilterOutMoviesBeforeYear1950"
+				},
+				{
+					"name": "DerivePrimaryGenre"
+				},
+				{
+					"name": "RankByYearAndGenre"
+				},
+				{
+					"name": "RatingsAggregated"
+				},
+				{
+					"name": "upsertIfTrue"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          movie as string,",
+				"          title as string,",
+				"          genres as string,",
+				"          year as string,",
+				"          Rating as string,",
+				"          {Rotton Tomato} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: true,",
+				"     ignoreNoFilesFound: false) ~> moviesADLS",
+				"moviesADLS select(mapColumn(",
+				"          movie,",
+				"          title,",
+				"          genres,",
+				"          year,",
+				"          Rating,",
+				"          {Rotten Tomato} = {Rotton Tomato}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectandRename",
+				"selectandRename filter(toInteger(year) > 1950) ~> FilterOutMoviesBeforeYear1950",
+				"FilterOutMoviesBeforeYear1950 derive(PrimaryGenre =     iif(locate('|',genres) > 1, left(genres, locate('|', genres) -1), genres)) ~> DerivePrimaryGenre",
+				"DerivePrimaryGenre window(over(PrimaryGenre,",
+				"          year),",
+				"     desc({Rotten Tomato}, true),",
+				"     RatingsRank = rank()) ~> RankByYearAndGenre",
+				"RankByYearAndGenre aggregate(groupBy(PrimaryGenre,",
+				"          year),",
+				"     AverageRating = avg(toInteger({Rotten Tomato})),",
+				"          HighestRated = first(title),",
+				"          LowestRated = last(title),",
+				"          NumberOfMovies = count()) ~> RatingsAggregated",
+				"RatingsAggregated alterRow(upsertIf(true())) ~> upsertIfTrue",
+				"upsertIfTrue sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SinktoDB"
+			]
+		}
+	}
+}
