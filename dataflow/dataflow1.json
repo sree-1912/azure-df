@@ -14,6 +14,10 @@
 			],
 			"sinks": [
 				{
+					"dataset": {
+						"referenceName": "AzureSQLDB",
+						"type": "DatasetReference"
+					},
 					"name": "SinktoDB"
 				}
 			],
@@ -75,8 +79,15 @@
 				"RatingsAggregated alterRow(upsertIf(true())) ~> upsertIfTrue",
 				"upsertIfTrue sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['PrimaryGenre','year'],",
+				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SinktoDB"
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SinktoDB"
 			]
 		}
 	}
